@@ -1,0 +1,4 @@
+timm
+thop
+torch
+torchvision
