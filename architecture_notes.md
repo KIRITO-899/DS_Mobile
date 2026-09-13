@@ -46,8 +46,8 @@ So the naming convention itself tells you upfront whether a given variant has at
 **MobileNetV4-Conv-Small** — loaded via `timm`, pretrained ImageNet weights:
 
 - Pure CNN, no attention — built entirely from UIB blocks as described above.
-- **Correction to make here:** the 3.77M figure I originally wrote down was actually measured *before* swapping the head — that was still the 1000-class ImageNet classifier at that point. After `reset_classifier(num_classes=100)`, the head shrinks (Linear 1280→1000 down to Linear 1280→100), which removes roughly 1.15M params, so the real post-swap total should land closer to **~2.6M**. I only captured MACs (0.185G) and thop's params count (2.468M, which undercounts since it skips Linear/BatchNorm) *after* the swap — I never re-ran the plain PyTorch `sum(p.numel() for p in model.parameters())` at that point. Need to go back and grab that exact number for the report/slide so we're not quoting the wrong figure.
-- MACs: **0.185G** at 224x224 input — this one's correct, measured after the head swap.
+- **Corrected number:** the 3.77M figure I originally wrote down was measured *before* swapping the head (still the 1000-class ImageNet classifier). After `reset_classifier(num_classes=100)`, I re-ran the actual PyTorch param count and confirmed the real total is **2.621M parameters** — matches the ~2.6M estimate from working out the head-size difference by hand, so this number's solid now.
+- MACs: **0.185G** at 224x224 input — measured after the head swap, this one was already correct.
 
 **MobileNetV4-Hybrid-Medium** — also loaded via `timm`, pretrained ImageNet weights:
 
@@ -63,5 +63,5 @@ In the original paper, both variants are trained with distillation from a much b
 
 - Lead with the UIB block since it's the shared foundation across both our MobileNetV4 models — explains why the family is supposed to be efficient across different hardware, not just one target.
 - Then introduce Mobile MQA as the *one* architectural difference between our two models — this is what makes the Conv-Small vs. Hybrid-Medium comparison meaningful, not just "two random models."
-- Put up Conv-Small's numbers alongside Hybrid-Medium's once both are correctly measured — need to re-run the accurate post-head-swap param count for Conv-Small (not the 3.77M pre-swap figure), plus MACs (0.185G, already correct) and the same two numbers for Hybrid-Medium.
+- Put up Conv-Small's confirmed numbers (**2.621M params, 0.185G MACs**) alongside Hybrid-Medium's once that model is analyzed post-mid-eval — side by side is the point, not just one model's numbers in isolation.
 - MobileNetV2 sits alongside both as the older-generation baseline, so we can also say whether either MobileNetV4 variant actually beats a pre-UIB, pre-MQA architecture.
