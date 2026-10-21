@@ -23,26 +23,27 @@
 
 ## 1. Branch Strategy
 
+All member branches (`member-1`, `member-2`, `member-3`) have been **merged into `main`** and deleted. The project now follows a **feature-branch workflow**.
+
 ```
-main          <- stable, reviewed, merged code only
-member-1      <- Member 1 workspace (model architecture)
-member-2      <- Member 2 workspace (training pipeline)
-member-3      <- Member 3 workspace (evaluation / analysis)
+main                    <- stable, reviewed, merged code only
+feature/<description>   <- short-lived branches for new work
+fix/<description>       <- short-lived branches for bug fixes
 ```
 
 | Rule | Detail |
 |------|--------|
 | **Never push directly to `main`** | All changes go through a Pull Request |
-| **Your branch = your workspace** | Only work on your own branch unless agreed otherwise |
-| **Keep your branch up-to-date** | Rebase/merge from `main` at least once a day |
-| **One feature, one branch** | If adding a new feature, branch off your member branch |
+| **Branch from `main`** | Create a new branch for every task: `git checkout -b feature/add-training-pipeline` |
+| **Keep branches short-lived** | Merge back into `main` within 1–3 days |
+| **One feature, one branch** | Keep branches focused on a single task |
 | **Delete merged branches** | Clean up feature branches after merging |
 
-### Sync your branch with `main`
+### Starting New Work
 ```bash
-git fetch origin
-git checkout member-X          # your branch
-git merge origin/main          # or: git rebase origin/main
+git checkout main
+git pull origin main
+git checkout -b feature/my-task    # or fix/my-bugfix
 ```
 
 ---
@@ -157,19 +158,19 @@ model.reset_classifier(100)
 
 ```
 DS_Mobile/
-├── mobilenetv4.py          <- model loader (Member 1)
-├── train.py                <- training entry point (Member 2)
-├── evaluate.py             <- evaluation scripts (Member 3)
-├── dataset.py              <- CIFAR-100 DataLoader helpers
-├── config.py               <- all hyperparameters & paths
-├── utils/
-│   ├── metrics.py
-│   └── visualization.py
-├── notebooks/              <- exploratory .ipynb files ONLY
-├── tests/                  <- unit tests
+├── models/
+│   ├── mobilenetv4.py          <- model architecture definition
+│   ├── best_conv_small.pt      <- trained model checkpoint
+│   └── mnv4_small_cifar100.pt  <- fine-tuned CIFAR-100 checkpoint
+├── notebooks/
+│   └── model_analysis.ipynb    <- exploratory .ipynb files ONLY
+├── predict.py                  <- CIFAR-100 inference script
+├── train.py                    <- training entry point (to be added)
+├── evaluate.py                 <- evaluation scripts (to be added)
+├── config.py                   <- all hyperparameters & paths (to be added)
+├── architecture_notes.md       <- model architecture documentation
 ├── requirements.txt
-├── architecture.md
-└── RULEBOOK.md             <- this file
+└── RULEBOOK.md                 <- this file
 ```
 
 | Rule | Detail |
@@ -359,12 +360,13 @@ pip install -r requirements.txt
 ## Quick Reference Card
 
 ```
-Branch         -> work on YOUR member branch only
+Branch         -> feature/<name> or fix/<name> off main
 Commit msg     -> feat/fix/train/exp(scope): imperative description
 Code style     -> PEP 8, 100 char limit, type hints on public fns
 Docstrings     -> Google-style on every public function/class
 Constants      -> UPPER_SNAKE_CASE in config.py, never magic numbers
 Notebooks      -> notebooks/ folder, cleared outputs, numbered names
+Models         -> models/ folder for .py definitions and .pt checkpoints
 No commits     -> weights, datasets, .env, __pycache__, venv
 PR             -> up-to-date with main, 1 approval, squash merge
 Dependencies   -> pin in requirements.txt immediately
@@ -372,4 +374,4 @@ Dependencies   -> pin in requirements.txt immediately
 
 ---
 
-*Last updated: 2026-08-24 · DS_Mobile Team*
+*Last updated: 2026-10-21 · DS_Mobile Team*
