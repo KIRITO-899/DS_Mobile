@@ -46,7 +46,7 @@ CIFAR100_LABELS = [
 
 # ── Paths ───────────────────────────────────────────────────────────────────
 MODEL_DIR = Path(__file__).resolve().parent / "models"
-CHECKPOINT = MODEL_DIR / "best_conv_small.pt"
+CHECKPOINT = MODEL_DIR / "mobilenetv4_conv_small.pt"
 
 DEFAULT_IMAGE_URL = (
     "https://images.pexels.com/photos/4781925/pexels-photo-4781925.jpeg"
