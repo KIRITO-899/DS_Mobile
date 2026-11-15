@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/navigation_dashboard">
+
+    <fragment
+        android:id="@+id/navigation_dashboard"
+        android:name="com.mobilenetlab.ui.dashboard.DashboardFragment"
+        android:label="@string/nav_dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <fragment
+        android:id="@+id/navigation_models"
+        android:name="com.mobilenetlab.ui.models.ModelsFragment"
+        android:label="@string/nav_models"
+        tools:layout="@layout/fragment_models" />
+
+    <fragment
+        android:id="@+id/navigation_benchmark"
+        android:name="com.mobilenetlab.ui.benchmark.BenchmarkFragment"
+        android:label="@string/nav_benchmark"
+        tools:layout="@layout/fragment_benchmark" />
+
+    <fragment
+        android:id="@+id/navigation_results"
+        android:name="com.mobilenetlab.ui.results.ResultsFragment"
+        android:label="@string/nav_results"
+        tools:layout="@layout/fragment_results" />
+
+</navigation>

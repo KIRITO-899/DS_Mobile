@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary palette - Clean, professional -->
+    <color name="primary">#1A73E8</color>
+    <color name="primary_variant">#1557B0</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#D3E3FD</color>
+    <color name="on_primary_container">#041E49</color>
+
+    <!-- Secondary -->
+    <color name="secondary">#5F6368</color>
+    <color name="secondary_variant">#3C4043</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#E8EAED</color>
+    <color name="on_secondary_container">#202124</color>
+
+    <!-- Surface / Background -->
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F8F9FA</color>
+    <color name="on_surface">#202124</color>
+    <color name="on_surface_variant">#5F6368</color>
+    <color name="background">#F8F9FA</color>
+    <color name="on_background">#202124</color>
+
+    <!-- Outline -->
+    <color name="outline">#DADCE0</color>
+    <color name="outline_variant">#E8EAED</color>
+
+    <!-- Error -->
+    <color name="error">#D93025</color>
+    <color name="on_error">#FFFFFF</color>
+    <color name="error_container">#FCE8E6</color>
+
+    <!-- Success -->
+    <color name="success">#1E8E3E</color>
+    <color name="success_container">#E6F4EA</color>
+
+    <!-- Warning -->
+    <color name="warning">#F9AB00</color>
+    <color name="warning_container">#FEF7E0</color>
+
+    <!-- Chart colors -->
+    <color name="chart_blue">#1A73E8</color>
+    <color name="chart_green">#1E8E3E</color>
+    <color name="chart_orange">#FA7B17</color>
+    <color name="chart_purple">#A142F4</color>
+    <color name="chart_red">#D93025</color>
+    <color name="chart_teal">#12B5CB</color>
+
+    <!-- Model card accent colors -->
+    <color name="model_conv_small">#1A73E8</color>
+    <color name="model_hybrid_medium">#A142F4</color>
+    <color name="model_mobilenetv2">#1E8E3E</color>
+
+    <!-- Dark theme colors -->
+    <color name="dark_surface">#1F1F1F</color>
+    <color name="dark_surface_variant">#2D2D2D</color>
+    <color name="dark_background">#121212</color>
+    <color name="dark_on_surface">#E8EAED</color>
+    <color name="dark_on_surface_variant">#9AA0A6</color>
+    <color name="dark_outline">#3C4043</color>
+    <color name="dark_primary">#8AB4F8</color>
+    <color name="dark_primary_container">#004A77</color>
+    <color name="dark_on_primary_container">#D3E3FD</color>
+
+    <!-- Status bar / Nav bar -->
+    <color name="status_bar_color">#FFFFFF</color>
+    <color name="nav_bar_color">#FFFFFF</color>
+</resources>

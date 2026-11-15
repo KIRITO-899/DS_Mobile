@@ -1,0 +1,115 @@
+<resources>
+    <string name="app_name">MobileNet Lab</string>
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_models">Models</string>
+    <string name="nav_benchmark">Benchmark</string>
+    <string name="nav_results">Results</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_subtitle">ML Model Benchmarking</string>
+    <string name="device_status">Device Status</string>
+    <string name="available_models">Available Models</string>
+    <string name="benchmark_runs">Benchmark Runs</string>
+    <string name="quick_benchmark">Quick Benchmark</string>
+    <string name="latest_summary">Latest Summary</string>
+    <string name="no_benchmarks_yet">No benchmarks yet. Run your first benchmark to see results.</string>
+
+    <!-- Models -->
+    <string name="model_details">Model Details</string>
+    <string name="load_model">Load Model</string>
+    <string name="unload_model">Unload Model</string>
+    <string name="model_loaded">Loaded</string>
+    <string name="model_not_loaded">Not Loaded</string>
+    <string name="model_unavailable">File Not Found</string>
+    <string name="model_file_size">File Size</string>
+    <string name="input_resolution">Input Resolution</string>
+    <string name="num_classes">Output Classes</string>
+    <string name="test_inference">Test Inference</string>
+    <string name="select_image">Select Image</string>
+    <string name="take_photo">Take Photo</string>
+
+    <!-- Benchmark -->
+    <string name="benchmark_config">Benchmark Configuration</string>
+    <string name="warmup_iterations">Warm-up Iterations</string>
+    <string name="benchmark_iterations">Benchmark Iterations</string>
+    <string name="num_test_images">Test Images</string>
+    <string name="execution_provider">Execution Provider</string>
+    <string name="cpu_provider">CPU</string>
+    <string name="nnapi_provider">NNAPI</string>
+    <string name="start_benchmark">Start Benchmark</string>
+    <string name="stop_benchmark">Stop Benchmark</string>
+    <string name="benchmark_progress">Benchmark Progress</string>
+    <string name="benchmark_all">Benchmark All Models</string>
+    <string name="select_models">Select Models</string>
+
+    <!-- Results -->
+    <string name="comparison_table">Comparison Table</string>
+    <string name="performance_charts">Performance Charts</string>
+    <string name="analysis_summary">Performance Analysis</string>
+    <string name="export_csv">Export CSV</string>
+    <string name="export_json">Export JSON</string>
+    <string name="no_results">No results available. Run a benchmark first.</string>
+    <string name="benchmark_history">Benchmark History</string>
+    <string name="delete_session">Delete Session</string>
+    <string name="view_details">View Details</string>
+
+    <!-- Metrics -->
+    <string name="avg_latency">Avg Latency</string>
+    <string name="median_latency">Median Latency</string>
+    <string name="min_latency">Min Latency</string>
+    <string name="max_latency">Max Latency</string>
+    <string name="p90_latency">P90 Latency</string>
+    <string name="throughput">Throughput</string>
+    <string name="peak_memory">Peak Memory</string>
+    <string name="model_load_time">Load Time</string>
+    <string name="accuracy">Accuracy</string>
+    <string name="model_size">Model Size</string>
+
+    <!-- Device Info -->
+    <string name="device_info">Device Information</string>
+    <string name="cpu_arch">CPU Architecture</string>
+    <string name="android_version">Android Version</string>
+    <string name="device_model">Device Model</string>
+    <string name="ram_capacity">RAM</string>
+    <string name="onnx_runtime_version">ONNX Runtime</string>
+    <string name="battery_level">Battery Level</string>
+
+    <!-- General -->
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="error">Error</string>
+    <string name="loading">Loading…</string>
+    <string name="ms_unit">ms</string>
+    <string name="mb_unit">MB</string>
+    <string name="images_per_sec">img/s</string>
+    <string name="percent_unit">%</string>
+
+    <!-- CIFAR-100 Labels -->
+    <string-array name="cifar100_labels">
+        <item>apple</item><item>aquarium_fish</item><item>baby</item><item>bear</item>
+        <item>beaver</item><item>bed</item><item>bee</item><item>beetle</item>
+        <item>bicycle</item><item>bottle</item><item>bowl</item><item>boy</item>
+        <item>bridge</item><item>bus</item><item>butterfly</item><item>camel</item>
+        <item>can</item><item>castle</item><item>caterpillar</item><item>cattle</item>
+        <item>chair</item><item>chimpanzee</item><item>clock</item><item>cloud</item>
+        <item>cockroach</item><item>couch</item><item>crab</item><item>crocodile</item>
+        <item>cup</item><item>dinosaur</item><item>dolphin</item><item>elephant</item>
+        <item>flatfish</item><item>forest</item><item>fox</item><item>girl</item>
+        <item>hamster</item><item>house</item><item>kangaroo</item><item>keyboard</item>
+        <item>lamp</item><item>lawn_mower</item><item>leopard</item><item>lion</item>
+        <item>lizard</item><item>lobster</item><item>man</item><item>maple_tree</item>
+        <item>motorcycle</item><item>mountain</item><item>mouse</item><item>mushroom</item>
+        <item>oak_tree</item><item>orange</item><item>orchid</item><item>otter</item>
+        <item>palm_tree</item><item>pear</item><item>pickup_truck</item><item>pine_tree</item>
+        <item>plain</item><item>plate</item><item>poppy</item><item>porcupine</item>
+        <item>possum</item><item>rabbit</item><item>raccoon</item><item>ray</item>
+        <item>road</item><item>rocket</item><item>rose</item><item>sea</item>
+        <item>seal</item><item>shark</item><item>shrew</item><item>skunk</item>
+        <item>skyscraper</item><item>snail</item><item>snake</item><item>spider</item>
+        <item>squirrel</item><item>streetcar</item><item>sunflower</item><item>sweet_pepper</item>
+        <item>table</item><item>tank</item><item>telephone</item><item>television</item>
+        <item>tiger</item><item>tractor</item><item>train</item><item>trout</item>
+        <item>tulip</item><item>turtle</item><item>wardrobe</item><item>whale</item>
+        <item>willow_tree</item><item>wolf</item><item>woman</item><item>worm</item>
+    </string-array>
+</resources>
