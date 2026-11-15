@@ -115,8 +115,8 @@ class BenchmarkEngine(
 
                 // Prepare test buffers
                 val numImages = minOf(testBitmaps.size, config.benchmarkIterations)
-                val preprocessedBuffers = ArrayList<FloatBuffer>(numImages)
-                val preprocessTimes = ArrayList<Double>(numImages)
+                val preprocessedBuffers = ArrayList<FloatBuffer>(maxOf(1, numImages))
+                val preprocessTimes = ArrayList<Double>(maxOf(1, numImages))
 
                 for (i in 0 until numImages) {
                     val pStart = System.nanoTime()
@@ -124,6 +124,12 @@ class BenchmarkEngine(
                     val pTime = (System.nanoTime() - pStart) / 1_000_000.0
                     preprocessedBuffers.add(buf)
                     preprocessTimes.add(pTime)
+                }
+
+                if (preprocessedBuffers.isEmpty()) {
+                    val dummyBuffer = FloatBuffer.allocate(1 * modelConfig.inputChannels * modelConfig.inputHeight * modelConfig.inputWidth)
+                    preprocessedBuffers.add(dummyBuffer)
+                    preprocessTimes.add(0.0)
                 }
 
                 // Phase 2: Warm-up
@@ -139,11 +145,7 @@ class BenchmarkEngine(
                     )
                 )
 
-                val warmupBuffer = if (preprocessedBuffers.isNotEmpty()) {
-                    preprocessedBuffers[0]
-                } else {
-                    FloatBuffer.allocate(1 * modelConfig.inputChannels * modelConfig.inputHeight * modelConfig.inputWidth)
-                }
+                val warmupBuffer = preprocessedBuffers[0]
 
                 for (w in 0 until config.warmupIterations) {
                     if (isCancelled) break
@@ -163,10 +165,11 @@ class BenchmarkEngine(
                 val benchStartTime = SystemClock.elapsedRealtime()
                 var peakMem = getMemoryUsageMB()
 
+                val bufferCount = preprocessedBuffers.size
                 for (iter in 0 until config.benchmarkIterations) {
                     if (isCancelled) break
 
-                    val bufferIndex = iter % numImages
+                    val bufferIndex = iter % bufferCount
                     val inputBuf = preprocessedBuffers[bufferIndex]
 
                     val startNanos = System.nanoTime()

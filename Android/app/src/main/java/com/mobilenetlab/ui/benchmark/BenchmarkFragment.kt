@@ -63,9 +63,9 @@ class BenchmarkFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            val warmup = binding.etWarmup.text.toString().toIntOrNull() ?: 10
-            val iterations = binding.etIterations.text.toString().toIntOrNull() ?: 100
-            val numImages = binding.etTestImages.text.toString().toIntOrNull() ?: 100
+            val warmup = (binding.etWarmup.text.toString().toIntOrNull() ?: 10).coerceAtLeast(0)
+            val iterations = (binding.etIterations.text.toString().toIntOrNull() ?: 100).coerceAtLeast(1)
+            val numImages = (binding.etTestImages.text.toString().toIntOrNull() ?: 100).coerceAtLeast(1)
             val useNNAPI = binding.chipNnapi.isChecked
 
             val config = BenchmarkEngine.BenchmarkConfig(
