@@ -1,10 +1,12 @@
 # =============================================================================
-# Python
+# Python & Bytecode
 # =============================================================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyd
+*.dll
 *.egg
 *.egg-info/
 dist/
@@ -19,15 +21,18 @@ lib/
 lib64/
 wheels/
 
+# =============================================================================
 # Virtual Environments
-.env
-.venv
-env/
+# =============================================================================
+.venv/
 venv/
+env/
 ENV/
+hy/
 env.bak/
 venv.bak/
-
+.conda/
+conda-env/
 
 # =============================================================================
 # Jupyter Notebooks
@@ -36,32 +41,24 @@ venv.bak/
 */.ipynb_checkpoints/*
 
 # =============================================================================
-# PyTorch / Deep Learning
+# PyTorch & Deep Learning (Models & Weights)
 # =============================================================================
 *.pth
-*.pt
+*.pwf
 *.ckpt
+*.bin
 *.h5
 *.hdf5
 *.pb
-*.onnx
+
+# Mobile & Edge Exported Models
 *.tflite
-
-runs/
-logs/
-outputs/
-checkpoints/
-saved_models/
-wandb/
-mlruns/
-lightning_logs/
+*.ort
 
 # =============================================================================
-# Data
+# Data & Datasets
+# Note: Anchored to root so that app code packages (e.g. com/.../data) are tracked
 # =============================================================================
-data/
-datasets/
-*.csv
 *.tsv
 *.parquet
 *.feather
@@ -69,42 +66,104 @@ datasets/
 *.pickle
 *.npy
 *.npz
+
+# Archives
 *.zip
 *.tar
 *.tar.gz
+*.tgz
 *.gz
 *.7z
-
-
+*.rar
 
 # =============================================================================
-# IDE & Editors
+# Android & Gradle
 # =============================================================================
+# Gradle cache & build outputs
+.gradle/
+**/build/
+reports/
+
+# Local Android SDK and machine-specific configurations
+local.properties
+
+# Kotlin compiler daemon
+.kotlin/
+
+# Android binaries and packages
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+
+# Signing keys & Keystores
+*.jks
+*.keystore
+signing-report.txt
+
+# Android profiling & native build outputs
+captures/
+*.hprof
+.externalNativeBuild/
+.cxx/
+output.json
+
+# Keep Gradle wrapper jar so builds are reproducible
+!gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+
+# =============================================================================
+# IDE & Code Editors
+# =============================================================================
+# VS Code
 .vscode/
 *.code-workspace
+
+# JetBrains / Android Studio / PyCharm
 .idea/
 *.iml
+*.ipr
+*.iws
+out/
+
+# General text editors
 *.swp
 *.swo
 *~
+*.bak
+*.sublime-project
+*.sublime-workspace
 
 # =============================================================================
-# OS Generated
+# Operating System Artifacts
 # =============================================================================
+# Windows
 Thumbs.db
+Thumbs.db:encryptable
 ehthumbs.db
+ehthumbs_vista.db
 Desktop.ini
 $RECYCLE.BIN/
+
+# macOS
 .DS_Store
 .AppleDouble
 .LSOverride
 ._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+.fuse_hidden*
+.directory
 
 # =============================================================================
-# Secrets & Config
+# Secrets, Credentials & Local Configs
 # =============================================================================
 .env
 .env.*
+!.env.example
 *.pem
 *.key
 secrets.yaml
@@ -112,26 +171,26 @@ secrets.yml
 config_local.py
 
 # =============================================================================
-# Profiling & Coverage
+# Testing, Coverage, Profiling & Tool Caches
 # =============================================================================
 .coverage
+.coverage.*
 coverage.xml
 htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
 *.prof
 *.lprof
 profile_output/
 
 # =============================================================================
-# Misc
+# Temporary Files & Logs
 # =============================================================================
 *.log
 *.tmp
-*.bak
 *.orig
-.cache/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
 tmp/
 temp/
 scratch/
