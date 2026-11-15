@@ -118,7 +118,9 @@ class BenchmarkFragment : Fragment() {
                 // If benchmark just finished and produced results, navigate to results
                 if (sharedViewModel.latestMetrics.value?.isNotEmpty() == true && binding.cardProgress.visibility == View.VISIBLE) {
                     binding.cardProgress.visibility = View.GONE
-                    findNavController().navigate(R.id.navigation_results)
+                    if (findNavController().currentDestination?.id == R.id.navigation_benchmark) {
+                        findNavController().navigate(R.id.navigation_results)
+                    }
                 }
             }
         }

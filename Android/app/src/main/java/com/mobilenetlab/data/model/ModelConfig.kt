@@ -54,7 +54,7 @@ data class ModelConfig(
         val HYBRID_MEDIUM = ModelConfig(
             id = "hybrid_medium",
             displayName = "MobileNetV4-Hybrid-Medium",
-            fileName = "mobilenetv4_hybrid_medium_cifar100.onnx",
+            fileName = "mobilenetv4_conv_medium_cifar100.onnx",
             meanValues = floatArrayOf(0.485f, 0.456f, 0.406f),
             stdValues = floatArrayOf(0.229f, 0.224f, 0.225f),
             cropPercentage = 0.875f,

@@ -46,7 +46,9 @@ class DashboardFragment : Fragment() {
         setupLatestSummary()
 
         binding.btnQuickBenchmark.setOnClickListener {
-            findNavController().navigate(R.id.navigation_benchmark)
+            if (findNavController().currentDestination?.id == R.id.navigation_dashboard) {
+                findNavController().navigate(R.id.navigation_benchmark)
+            }
         }
     }
 

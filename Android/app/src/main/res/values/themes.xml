@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.MobileNetLab" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Base.Theme.MobileNetLab" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary_variant</item>
         <item name="colorOnPrimary">@color/on_primary</item>
@@ -32,8 +32,9 @@
         <item name="android:statusBarColor">@color/status_bar_color</item>
         <item name="android:navigationBarColor">@color/nav_bar_color</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
     </style>
+
+    <style name="Theme.MobileNetLab" parent="Base.Theme.MobileNetLab" />
 
     <!-- Card style -->
     <style name="Widget.MobileNetLab.Card" parent="Widget.Material3.CardView.Elevated">

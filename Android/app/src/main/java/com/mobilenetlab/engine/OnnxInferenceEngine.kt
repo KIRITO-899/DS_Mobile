@@ -119,8 +119,12 @@ class OnnxInferenceEngine(private val context: Context) {
         val results = session.run(Collections.singletonMap(inputName, inputTensor))
 
         val outputTensor = results[0] as OnnxTensor
-        @Suppress("UNCHECKED_CAST")
-        val outputData = (outputTensor.value as Array<FloatArray>)[0]
+        val outputValue = outputTensor.value
+        val outputData = when (outputValue) {
+            is Array<*> -> (outputValue as Array<FloatArray>)[0]
+            is FloatArray -> outputValue
+            else -> throw IllegalStateException("Unexpected output tensor format: ${outputValue?.javaClass}")
+        }
 
         // Clean up
         inputTensor.close()

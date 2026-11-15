@@ -43,6 +43,7 @@ conda-env/
 # =============================================================================
 # PyTorch & Deep Learning (Models & Weights)
 # =============================================================================
+*.pt
 *.pth
 *.pwf
 *.ckpt
@@ -51,14 +52,31 @@ conda-env/
 *.hdf5
 *.pb
 
-# Mobile & Edge Exported Models
+# Mobile & Edge Exported Models (Managed outside Git or via Releases)
+*.onnx
 *.tflite
 *.ort
+Android/*.onnx
+
+# Experiment Tracking & Training Artifacts
+runs/
+logs/
+outputs/
+checkpoints/
+saved_models/
+wandb/
+mlruns/
+lightning_logs/
+.tensorboard/
+ray_results/
 
 # =============================================================================
 # Data & Datasets
 # Note: Anchored to root so that app code packages (e.g. com/.../data) are tracked
 # =============================================================================
+/data/
+/datasets/
+*.csv
 *.tsv
 *.parquet
 *.feather
@@ -77,44 +95,65 @@ conda-env/
 *.rar
 
 # =============================================================================
-# Android & Gradle
+# Android & Gradle — Build Artifacts & Zero Personal Data Leak Protection
 # =============================================================================
-# Gradle cache & build outputs
+# Local machine configurations & user paths (Prevents leaking local usernames/SDK paths)
+local.properties
+*.local.properties
+gradle.local.properties
+
+# Gradle internal cache & daemon execution data
 .gradle/
+**/.gradle/
 **/build/
 reports/
 
-# Local Android SDK and machine-specific configurations
-local.properties
-
-# Kotlin compiler daemon
+# Kotlin compiler daemon sessions & memory
 .kotlin/
+**/.kotlin/
 
-# Android binaries and packages
+# Android binaries, packages & compilation outputs
 *.apk
 *.ap_
 *.aab
 *.dex
 *.class
-
-# Signing keys & Keystores
-*.jks
-*.keystore
-signing-report.txt
-
-# Android profiling & native build outputs
-captures/
-*.hprof
-.externalNativeBuild/
-.cxx/
 output.json
 
-# Keep Gradle wrapper jar so builds are reproducible
+# Signing keys, certificates & release keystores (Critical security protection)
+*.jks
+*.keystore
+debug.keystore
+signing-report.txt
+signing.properties
+
+# Cloud, Firebase & Google Services client credentials
+google-services.json
+google-services.xml
+secrets.xml
+secrets.properties
+
+# Android memory dumps & runtime profiling (Prevents leaking user device RAM / sensitive inputs)
+captures/
+*.hprof
+
+# Native C++ / NDK build intermediates and compile commands
+.externalNativeBuild/
+**/.externalNativeBuild/
+.cxx/
+**/.cxx/
+
+# Explicit Whitelists for Android
+# Gradle wrapper jar must be tracked for reproducible builds
 !gradle/wrapper/gradle-wrapper.jar
 !**/gradle/wrapper/gradle-wrapper.jar
 
+# Allow Apk documentation and tracking placeholders
+!Apk/README.md
+!Apk/.gitkeep
+
 # =============================================================================
-# IDE & Code Editors
+# IDE & Code Editors (Prevents leaking user workspace & device streaming IDs)
 # =============================================================================
 # VS Code
 .vscode/
@@ -122,12 +161,14 @@ output.json
 
 # JetBrains / Android Studio / PyCharm
 .idea/
+**/.idea/
 *.iml
+**/*.iml
 *.ipr
 *.iws
 out/
 
-# General text editors
+# General text editors & swap files
 *.swp
 *.swo
 *~
@@ -166,6 +207,7 @@ $RECYCLE.BIN/
 !.env.example
 *.pem
 *.key
+*.p12
 secrets.yaml
 secrets.yml
 config_local.py
