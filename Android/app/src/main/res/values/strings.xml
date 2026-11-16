@@ -25,11 +25,19 @@
     <string name="input_resolution">Input Resolution</string>
     <string name="num_classes">Output Classes</string>
     <string name="test_inference">Test Inference</string>
-    <string name="select_image">Select Image</string>
-    <string name="take_photo">Take Photo</string>
+    <string name="choose_image">Choose Image</string>
+    <string name="select_image">Choose Image</string>
+    <string name="take_photo">Take Photo from Camera</string>
+    <string name="pick_gallery">Choose from Gallery / Files</string>
+    <string name="choose_image_source">Select Image Source</string>
 
     <!-- Benchmark -->
     <string name="benchmark_config">Benchmark Configuration</string>
+    <string name="hardware_tier">Target Hardware Tier</string>
+    <string name="tier_live">Live Device (Real Hardware)</string>
+    <string name="tier_high">High-End Flagship (Simulated)</string>
+    <string name="tier_mid">Mid-Range Phone (Simulated)</string>
+    <string name="tier_low">Low-End Budget (Simulated)</string>
     <string name="warmup_iterations">Warm-up Iterations</string>
     <string name="benchmark_iterations">Benchmark Iterations</string>
     <string name="num_test_images">Test Images</string>

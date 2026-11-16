@@ -42,12 +42,13 @@ object ExportUtils {
             writer.append("\n")
 
             // CSV Columns
-            writer.append("Model Name,Model ID,Model Size (MB),Load Time (ms),Avg Latency (ms),Median Latency (ms),Min Latency (ms),Max Latency (ms),P90 Latency (ms),Throughput (img/s),Peak Memory (MB),Top-1 Accuracy (%),Correct,Incorrect,Total Evaluated,Warmup Iterations,Benchmark Iterations,Provider,Threads,Duration (ms)\n")
+            writer.append("Model Name,Model ID,Hardware Tier,Model Size (MB),Load Time (ms),Avg Latency (ms),Median Latency (ms),Min Latency (ms),Max Latency (ms),P90 Latency (ms),P95 Latency (ms),P99 Latency (ms),Jitter StdDev (ms),Throughput (img/s),Peak Memory (MB),Top-1 Accuracy (%),Correct,Incorrect,Total Evaluated,Warmup Iterations,Benchmark Iterations,Provider,Threads,Duration (ms)\n")
 
             // Rows
             for (m in metrics) {
                 writer.append("\"${m.modelName}\",")
                 writer.append("${m.modelId},")
+                writer.append("\"${m.deviceTier}\",")
                 writer.append(String.format(Locale.US, "%.2f,", m.modelSizeMB))
                 writer.append(String.format(Locale.US, "%.2f,", m.modelLoadTimeMs))
                 writer.append(String.format(Locale.US, "%.2f,", m.avgInferenceMs))
@@ -55,6 +56,9 @@ object ExportUtils {
                 writer.append(String.format(Locale.US, "%.2f,", m.minInferenceMs))
                 writer.append(String.format(Locale.US, "%.2f,", m.maxInferenceMs))
                 writer.append(String.format(Locale.US, "%.2f,", m.p90InferenceMs))
+                writer.append(String.format(Locale.US, "%.2f,", m.p95InferenceMs))
+                writer.append(String.format(Locale.US, "%.2f,", m.p99InferenceMs))
+                writer.append(String.format(Locale.US, "%.2f,", m.stdDevInferenceMs))
                 writer.append(String.format(Locale.US, "%.2f,", m.throughputImgPerSec))
                 writer.append(String.format(Locale.US, "%.2f,", m.peakMemoryMB))
                 writer.append(if (m.top1Accuracy >= 0) String.format(Locale.US, "%.2f,", m.top1Accuracy) else "N/A,")

@@ -46,8 +46,39 @@ class DashboardFragment : Fragment() {
         setupLatestSummary()
 
         binding.btnQuickBenchmark.setOnClickListener {
-            if (findNavController().currentDestination?.id == R.id.navigation_dashboard) {
-                findNavController().navigate(R.id.navigation_benchmark)
+            safelyNavigateTo(R.id.navigation_benchmark)
+        }
+
+        binding.cardModelsCount.setOnClickListener {
+            safelyNavigateTo(R.id.navigation_models)
+        }
+
+        binding.cardBenchmarkCount.setOnClickListener {
+            safelyNavigateTo(R.id.navigation_results)
+        }
+
+        binding.cardLatestSummary.setOnClickListener {
+            val dest = if (sharedViewModel.latestMetrics.value.isNullOrEmpty()) {
+                R.id.navigation_benchmark
+            } else {
+                R.id.navigation_results
+            }
+            safelyNavigateTo(dest)
+        }
+    }
+
+    private fun safelyNavigateTo(destinationId: Int) {
+        val mainActivity = activity as? com.mobilenetlab.ui.MainActivity
+        if (mainActivity != null) {
+            mainActivity.navigateToTab(destinationId)
+        } else {
+            val navController = findNavController()
+            if (navController.currentDestination?.id == R.id.navigation_dashboard) {
+                try {
+                    navController.navigate(destinationId)
+                } catch (e: Exception) {
+                    // Ignore
+                }
             }
         }
     }
@@ -97,12 +128,16 @@ class DashboardFragment : Fragment() {
     private fun populateSummaryTable(metrics: List<BenchmarkMetrics>) {
         binding.tableSummary.removeAllViews()
 
+        val hasAcc = metrics.any { it.totalEvaluated > 0 && it.top1Accuracy >= 0 }
+
         // Header Row
         val headerRow = TableRow(requireContext())
         headerRow.addView(createCell("Model", isHeader = true))
         headerRow.addView(createCell("Avg Latency", isHeader = true))
         headerRow.addView(createCell("Throughput", isHeader = true))
-        headerRow.addView(createCell("Accuracy", isHeader = true))
+        if (hasAcc) {
+            headerRow.addView(createCell("Accuracy", isHeader = true))
+        }
         binding.tableSummary.addView(headerRow)
 
         // Data Rows
@@ -113,8 +148,10 @@ class DashboardFragment : Fragment() {
             row.addView(createCell(latText, isHeader = false))
             val tpText = if (m.throughputImgPerSec > 0) String.format(Locale.US, "%.1f/s", m.throughputImgPerSec) else "N/A"
             row.addView(createCell(tpText, isHeader = false))
-            val accText = if (m.top1Accuracy >= 0) String.format(Locale.US, "%.1f%%", m.top1Accuracy) else "N/A"
-            row.addView(createCell(accText, isHeader = false))
+            if (hasAcc) {
+                val accText = String.format(Locale.US, "%.1f%%", m.top1Accuracy)
+                row.addView(createCell(accText, isHeader = false))
+            }
             binding.tableSummary.addView(row)
         }
     }

@@ -33,11 +33,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _latestMetrics = MutableLiveData<List<BenchmarkMetrics>?>()
     val latestMetrics: LiveData<List<BenchmarkMetrics>?> = _latestMetrics
 
+    private val _currentSessionId = MutableLiveData<Long?>()
+    val currentSessionId: LiveData<Long?> = _currentSessionId
+
     private val _benchmarkProgress = MutableLiveData<BenchmarkEngine.BenchmarkProgress?>()
     val benchmarkProgress: LiveData<BenchmarkEngine.BenchmarkProgress?> = _benchmarkProgress
 
     private val _isBenchmarking = MutableLiveData(false)
     val isBenchmarking: LiveData<Boolean> = _isBenchmarking
+
+    private val _navigateToResultsEvent = MutableLiveData<Boolean>(false)
+    val navigateToResultsEvent: LiveData<Boolean> = _navigateToResultsEvent
 
     val sessionCount = dao.getSessionCount()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
@@ -49,10 +55,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         loadLatestSession()
     }
 
+    fun consumeNavigateToResultsEvent() {
+        _navigateToResultsEvent.value = false
+    }
+
     fun loadLatestSession() {
         viewModelScope.launch {
             val session = dao.getLatestSession()
             if (session != null) {
+                _currentSessionId.postValue(session.id)
                 try {
                     val metricsType = object : com.google.gson.reflect.TypeToken<List<BenchmarkMetrics>>() {}.type
                     val metrics: List<BenchmarkMetrics> = Gson().fromJson(session.rawJsonData, metricsType)
@@ -60,6 +71,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 } catch (e: Exception) {
                     _latestMetrics.postValue(null)
                 }
+            } else {
+                _currentSessionId.postValue(null)
+                _latestMetrics.postValue(null)
             }
         }
     }
@@ -68,6 +82,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val session = dao.getSessionById(id)
             if (session != null) {
+                _currentSessionId.postValue(session.id)
                 try {
                     val metricsType = object : com.google.gson.reflect.TypeToken<List<BenchmarkMetrics>>() {}.type
                     val metrics: List<BenchmarkMetrics> = Gson().fromJson(session.rawJsonData, metricsType)
@@ -82,6 +97,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteSession(id: Long) {
         viewModelScope.launch {
             dao.deleteSession(id)
+            if (_currentSessionId.value == id) {
+                _currentSessionId.postValue(null)
+                _latestMetrics.postValue(null)
+            }
             loadLatestSession()
         }
     }
@@ -121,7 +140,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 isEmulator = deviceInfo.isEmulator,
                 rawJsonData = Gson().toJson(results)
             )
-            dao.insertSession(sessionEntity)
+            val newId = dao.insertSession(sessionEntity)
+            _currentSessionId.postValue(newId)
+            _navigateToResultsEvent.postValue(true)
         }
     }
 

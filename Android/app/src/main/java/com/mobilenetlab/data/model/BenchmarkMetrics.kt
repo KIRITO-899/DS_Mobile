@@ -16,6 +16,9 @@ data class BenchmarkMetrics(
     val minInferenceMs: Double,
     val maxInferenceMs: Double,
     val p90InferenceMs: Double,
+    val p95InferenceMs: Double = 0.0,
+    val p99InferenceMs: Double = 0.0,
+    val stdDevInferenceMs: Double = 0.0,
     val allInferenceTimesMs: List<Double>,
 
     // Preprocessing latency
@@ -43,6 +46,7 @@ data class BenchmarkMetrics(
     val executionProvider: String,
     val numThreads: Int,
     val totalBenchmarkDurationMs: Long,
+    val deviceTier: String = "Live Device",
 
     // Warnings/errors
     val warnings: List<String> = emptyList()

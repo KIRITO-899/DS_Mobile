@@ -120,9 +120,25 @@ class OnnxInferenceEngine(private val context: Context) {
 
         val outputTensor = results[0] as OnnxTensor
         val outputValue = outputTensor.value
-        val outputData = when (outputValue) {
-            is Array<*> -> (outputValue as Array<FloatArray>)[0]
+        val outputData: FloatArray = when (outputValue) {
             is FloatArray -> outputValue
+            is Array<*> -> {
+                val first = outputValue.firstOrNull()
+                when (first) {
+                    is FloatArray -> first
+                    is Array<*> -> {
+                        val inner = first.firstOrNull()
+                        if (inner is FloatArray) inner else throw IllegalStateException("Unexpected 3D tensor format: ${inner?.javaClass}")
+                    }
+                    else -> throw IllegalStateException("Unexpected inner tensor array format: ${first?.javaClass}")
+                }
+            }
+            is FloatBuffer -> {
+                val fb = outputValue as FloatBuffer
+                val arr = FloatArray(fb.remaining())
+                fb.get(arr)
+                arr
+            }
             else -> throw IllegalStateException("Unexpected output tensor format: ${outputValue?.javaClass}")
         }
 

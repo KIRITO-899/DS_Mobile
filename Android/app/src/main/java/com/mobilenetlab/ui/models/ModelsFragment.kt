@@ -1,11 +1,14 @@
 package com.mobilenetlab.ui.models
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -39,6 +42,16 @@ class ModelsFragment : Fragment() {
     private var testDialogBinding: DialogInferenceTestBinding? = null
     private var selectedBitmap: Bitmap? = null
 
+    private val takePhotoLauncher = registerForActivityResult(
+        ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        if (bitmap != null) {
+            selectedBitmap = bitmap
+            testDialogBinding?.ivSelectedImage?.setImageBitmap(selectedBitmap)
+            testDialogBinding?.btnRunSingleInference?.isEnabled = true
+        }
+    }
+
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -54,6 +67,26 @@ class ModelsFragment : Fragment() {
                     Toast.makeText(context, "Failed to load image", Toast.LENGTH_SHORT).show()
                 }
             }
+        }
+    }
+
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            takePhotoLauncher.launch(null)
+        } else {
+            Toast.makeText(context, "Camera permission required to take photos", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val requestGalleryPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            launchGalleryPicker()
+        } else {
+            Toast.makeText(context, "Storage permission required to choose images", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -109,15 +142,16 @@ class ModelsFragment : Fragment() {
                     cardBinding.chipStatus.setChipBackgroundColorResource(R.color.success_container)
                     cardBinding.chipStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.success))
                     cardBinding.btnLoadUnload.text = getString(R.string.unload_model)
+                    cardBinding.btnTestInference.isEnabled = true
                 } else {
                     cardBinding.chipStatus.text = getString(R.string.model_not_loaded)
                     cardBinding.chipStatus.setChipBackgroundColorResource(R.color.secondary_container)
                     cardBinding.chipStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.on_secondary_container))
                     cardBinding.btnLoadUnload.text = getString(R.string.load_model)
+                    cardBinding.btnTestInference.isEnabled = false
                 }
 
                 cardBinding.btnLoadUnload.isEnabled = true
-                cardBinding.btnTestInference.isEnabled = true
             } else {
                 cardBinding.tvFileSize.text = "Missing"
                 cardBinding.tvInputRes.text = "${config.inputWidth}×${config.inputHeight}"
@@ -139,10 +173,14 @@ class ModelsFragment : Fragment() {
                 } else {
                     viewLifecycleOwner.lifecycleScope.launch {
                         cardBinding.btnLoadUnload.isEnabled = false
-                        withContext(Dispatchers.IO) {
-                            sharedViewModel.inferenceEngine.loadModel(config)
+                        try {
+                            withContext(Dispatchers.IO) {
+                                sharedViewModel.inferenceEngine.loadModel(config)
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Failed to load model: ${e.message}", Toast.LENGTH_LONG).show()
                         }
-                        populateModelCards()
+                        if (isAdded) populateModelCards()
                     }
                 }
             }
@@ -161,12 +199,14 @@ class ModelsFragment : Fragment() {
         val dialogView = DialogInferenceTestBinding.inflate(layoutInflater)
         testDialogBinding = dialogView
 
+        val isLoaded = sharedViewModel.inferenceEngine.isModelLoaded(config.id)
+        val statusText = if (isLoaded) "Status: Loaded in Memory" else "Status: Not Loaded (Click 'Load Model' on Card First)"
+
         dialogView.tvDialogModelName.text = "Inference: ${config.displayName}"
-        dialogView.tvModelDetails.text = "Architecture: ${config.architecture}\nTarget: CIFAR-100 (100 classes)\nNormalization: ImageNet (Mean: 0.485, Std: 0.229)"
+        dialogView.tvModelDetails.text = "Architecture: ${config.architecture}\nParams: ${config.paramsMillions}M | MACs: ${config.macsGiga}G\n$statusText"
 
         dialogView.btnSelectImage.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            pickImageLauncher.launch(intent)
+            showImageSourceChooser()
         }
 
         dialogView.btnRunSingleInference.setOnClickListener {
@@ -176,35 +216,51 @@ class ModelsFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            if (!sharedViewModel.inferenceEngine.isModelLoaded(config.id)) {
+                Toast.makeText(
+                    context,
+                    "Model is not loaded. Please click 'Load Model' on the model card first.",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+            }
+
             dialogView.progressBarInference.visibility = View.VISIBLE
             dialogView.btnRunSingleInference.isEnabled = false
 
             viewLifecycleOwner.lifecycleScope.launch {
-                val result = withContext(Dispatchers.Default) {
-                    if (!sharedViewModel.inferenceEngine.isModelLoaded(config.id)) {
-                        sharedViewModel.inferenceEngine.loadModel(config)
+                try {
+                    val result = withContext(Dispatchers.Default) {
+                        sharedViewModel.inferenceEngine.runFullInference(config.id, bmp, config)
                     }
-                    sharedViewModel.inferenceEngine.runFullInference(config.id, bmp, config)
+
+                    if (!isAdded) return@launch
+
+                    dialogView.progressBarInference.visibility = View.GONE
+                    dialogView.btnRunSingleInference.isEnabled = true
+
+                    // Display timings
+                    dialogView.tvTimingResults.text = String.format(
+                        Locale.US,
+                        "Preprocess: %.2f ms | Pure Inference: %.2f ms | Total: %.2f ms",
+                        result.preprocessTimeMs,
+                        result.inferenceTimeMs,
+                        result.endToEndTimeMs
+                    )
+
+                    // Display predictions
+                    val sb = StringBuilder()
+                    for ((rank, p) in result.predictions.withIndex()) {
+                        sb.append(String.format(Locale.US, "#%d: %s (%.1f%%)\n", rank + 1, p.className, p.confidence * 100))
+                    }
+                    dialogView.tvPredictions.text = sb.toString().trimEnd()
+                } catch (e: Exception) {
+                    if (isAdded) {
+                        dialogView.progressBarInference.visibility = View.GONE
+                        dialogView.btnRunSingleInference.isEnabled = true
+                        Toast.makeText(context, "Inference error: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
                 }
-
-                dialogView.progressBarInference.visibility = View.GONE
-                dialogView.btnRunSingleInference.isEnabled = true
-
-                // Display timings
-                dialogView.tvTimingResults.text = String.format(
-                    Locale.US,
-                    "Preprocess: %.2f ms | Pure Inference: %.2f ms | Total: %.2f ms",
-                    result.preprocessTimeMs,
-                    result.inferenceTimeMs,
-                    result.endToEndTimeMs
-                )
-
-                // Display predictions
-                val sb = StringBuilder()
-                for ((rank, p) in result.predictions.withIndex()) {
-                    sb.append(String.format(Locale.US, "#%d: %s (%.1f%%)\n", rank + 1, p.className, p.confidence * 100))
-                }
-                dialogView.tvPredictions.text = sb.toString().trimEnd()
             }
         }
 
@@ -214,6 +270,48 @@ class ModelsFragment : Fragment() {
                 dialog.dismiss()
             }
             .show()
+    }
+
+    private fun showImageSourceChooser() {
+        val options = arrayOf(
+            getString(R.string.take_photo),
+            getString(R.string.pick_gallery)
+        )
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.choose_image_source))
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> checkAndLaunchCamera()
+                    1 -> checkAndLaunchGallery()
+                }
+            }
+            .show()
+    }
+
+    private fun checkAndLaunchCamera() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            takePhotoLauncher.launch(null)
+        } else {
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun checkAndLaunchGallery() {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+        if (ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED) {
+            launchGalleryPicker()
+        } else {
+            requestGalleryPermissionLauncher.launch(permission)
+        }
+    }
+
+    private fun launchGalleryPicker() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        pickImageLauncher.launch(intent)
     }
 
     override fun onDestroyView() {

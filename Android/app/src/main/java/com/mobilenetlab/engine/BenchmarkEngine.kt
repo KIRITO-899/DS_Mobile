@@ -21,6 +21,18 @@ import kotlin.math.roundToInt
  * - Statistical aggregation: mean, median, min, max, P90, throughput
  * - Memory tracking before/after
  */
+enum class DeviceHardwareTier(
+    val displayName: String,
+    val scaleFactor: Double,
+    val jitterFactor: Double,
+    val ramScale: Double
+) {
+    LIVE("Live Device (Real Hardware)", 1.0, 1.0, 1.0),
+    HIGH_END("High-End Flagship (Simulated)", 0.35, 0.4, 2.5),
+    MID_RANGE("Mid-Range Phone (Simulated)", 1.0, 1.0, 1.0),
+    LOW_END("Low-End Budget (Simulated)", 2.45, 2.2, 0.5)
+}
+
 class BenchmarkEngine(
     private val context: Context,
     private val inferenceEngine: OnnxInferenceEngine
@@ -31,7 +43,8 @@ class BenchmarkEngine(
         val benchmarkIterations: Int = 100,
         val useNNAPI: Boolean = false,
         val numThreads: Int = 4,
-        val modelsToBenchmark: List<ModelConfig> = ModelConfig.ALL_MODELS
+        val modelsToBenchmark: List<ModelConfig> = ModelConfig.ALL_MODELS,
+        val deviceTier: DeviceHardwareTier = DeviceHardwareTier.LIVE
     )
 
     data class BenchmarkProgress(
@@ -174,7 +187,15 @@ class BenchmarkEngine(
 
                     val startNanos = System.nanoTime()
                     val logits = inferenceEngine.runInference(modelConfig.id, inputBuf, modelConfig)
-                    val latencyMs = (System.nanoTime() - startNanos) / 1_000_000.0
+                    val rawLatencyMs = (System.nanoTime() - startNanos) / 1_000_000.0
+
+                    val latencyMs = if (config.deviceTier != DeviceHardwareTier.LIVE) {
+                        val baseSim = rawLatencyMs * config.deviceTier.scaleFactor
+                        val noise = (Math.random() - 0.5) * 0.12 * config.deviceTier.jitterFactor * baseSim
+                        (baseSim + noise).coerceAtLeast(0.1)
+                    } else {
+                        rawLatencyMs
+                    }
 
                     inferenceTimesMs.add(latencyMs)
 
@@ -188,7 +209,7 @@ class BenchmarkEngine(
 
                     // Sample memory occasionally
                     if (iter % 20 == 0) {
-                        val curMem = getMemoryUsageMB()
+                        val curMem = getMemoryUsageMB() * config.deviceTier.ramScale
                         if (curMem > peakMem) peakMem = curMem
                     }
 
@@ -223,6 +244,17 @@ class BenchmarkEngine(
                 val p90Index = (sortedTimes.size * 0.90).toInt().coerceAtMost(sortedTimes.size - 1)
                 val p90Inference = if (sortedTimes.isNotEmpty()) sortedTimes[p90Index] else 0.0
 
+                val p95Index = (sortedTimes.size * 0.95).toInt().coerceAtMost(sortedTimes.size - 1)
+                val p95Inference = if (sortedTimes.isNotEmpty()) sortedTimes[p95Index] else 0.0
+
+                val p99Index = (sortedTimes.size * 0.99).toInt().coerceAtMost(sortedTimes.size - 1)
+                val p99Inference = if (sortedTimes.isNotEmpty()) sortedTimes[p99Index] else 0.0
+
+                val variance = if (inferenceTimesMs.isNotEmpty()) {
+                    inferenceTimesMs.sumOf { Math.pow(it - avgInference, 2.0) } / inferenceTimesMs.size
+                } else 0.0
+                val stdDevInference = Math.sqrt(variance)
+
                 val avgPreprocess = if (preprocessTimes.isNotEmpty()) preprocessTimes.average() else 0.0
                 val throughput = if (avgInference > 0) 1000.0 / avgInference else 0.0
                 val top1Acc = if (totalEvaluated > 0) (correctPredictions.toDouble() / totalEvaluated) * 100.0 else -1.0
@@ -238,6 +270,9 @@ class BenchmarkEngine(
                         minInferenceMs = minInference,
                         maxInferenceMs = maxInference,
                         p90InferenceMs = p90Inference,
+                        p95InferenceMs = p95Inference,
+                        p99InferenceMs = p99Inference,
+                        stdDevInferenceMs = stdDevInference,
                         allInferenceTimesMs = inferenceTimesMs,
                         avgPreprocessMs = avgPreprocess,
                         avgEndToEndMs = avgPreprocess + avgInference,
@@ -251,7 +286,8 @@ class BenchmarkEngine(
                         benchmarkIterations = config.benchmarkIterations,
                         executionProvider = if (config.useNNAPI) "NNAPI" else "CPU",
                         numThreads = config.numThreads,
-                        totalBenchmarkDurationMs = totalDurationMs
+                        totalBenchmarkDurationMs = totalDurationMs,
+                        deviceTier = config.deviceTier.displayName
                     )
                 )
 

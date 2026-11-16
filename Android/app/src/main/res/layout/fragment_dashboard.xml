@@ -109,6 +109,7 @@
 
             <!-- Models Available -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_models_count"
                 style="@style/Widget.MobileNetLab.MetricCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -134,6 +135,7 @@
 
             <!-- Benchmark Runs -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_benchmark_count"
                 style="@style/Widget.MobileNetLab.MetricCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

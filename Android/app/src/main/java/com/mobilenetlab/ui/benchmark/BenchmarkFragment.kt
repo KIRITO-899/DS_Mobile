@@ -14,6 +14,7 @@ import com.mobilenetlab.R
 import com.mobilenetlab.data.model.ModelConfig
 import com.mobilenetlab.databinding.FragmentBenchmarkBinding
 import com.mobilenetlab.engine.BenchmarkEngine
+import com.mobilenetlab.engine.DeviceHardwareTier
 import com.mobilenetlab.ui.MainViewModel
 
 class BenchmarkFragment : Fragment() {
@@ -68,12 +69,20 @@ class BenchmarkFragment : Fragment() {
             val numImages = (binding.etTestImages.text.toString().toIntOrNull() ?: 100).coerceAtLeast(1)
             val useNNAPI = binding.chipNnapi.isChecked
 
+            val selectedTier = when (binding.chipGroupHardwareTier.checkedChipId) {
+                R.id.chip_tier_high -> DeviceHardwareTier.HIGH_END
+                R.id.chip_tier_mid -> DeviceHardwareTier.MID_RANGE
+                R.id.chip_tier_low -> DeviceHardwareTier.LOW_END
+                else -> DeviceHardwareTier.LIVE
+            }
+
             val config = BenchmarkEngine.BenchmarkConfig(
                 warmupIterations = warmup,
                 benchmarkIterations = iterations,
                 useNNAPI = useNNAPI,
                 numThreads = 4,
-                modelsToBenchmark = selectedModels
+                modelsToBenchmark = selectedModels,
+                deviceTier = selectedTier
             )
 
             // Generate synthetic test images (or load CIFAR test images if bundled)
@@ -111,16 +120,24 @@ class BenchmarkFragment : Fragment() {
         }
 
         sharedViewModel.isBenchmarking.observe(viewLifecycleOwner) { isRunning ->
-            if (!isRunning) {
+            if (isRunning) {
+                binding.btnStartBenchmark.visibility = View.GONE
+                binding.btnStopBenchmark.visibility = View.VISIBLE
+            } else {
                 binding.btnStartBenchmark.visibility = View.VISIBLE
                 binding.btnStopBenchmark.visibility = View.GONE
+            }
+        }
 
-                // If benchmark just finished and produced results, navigate to results
-                if (sharedViewModel.latestMetrics.value?.isNotEmpty() == true && binding.cardProgress.visibility == View.VISIBLE) {
-                    binding.cardProgress.visibility = View.GONE
-                    if (findNavController().currentDestination?.id == R.id.navigation_benchmark) {
-                        findNavController().navigate(R.id.navigation_results)
-                    }
+        sharedViewModel.navigateToResultsEvent.observe(viewLifecycleOwner) { shouldNavigate ->
+            if (shouldNavigate == true) {
+                sharedViewModel.consumeNavigateToResultsEvent()
+                binding.cardProgress.visibility = View.GONE
+                val mainActivity = activity as? com.mobilenetlab.ui.MainActivity
+                if (mainActivity != null) {
+                    mainActivity.navigateToTab(R.id.navigation_results)
+                } else if (findNavController().currentDestination?.id == R.id.navigation_benchmark) {
+                    findNavController().navigate(R.id.navigation_results)
                 }
             }
         }
